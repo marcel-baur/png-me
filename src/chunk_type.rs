@@ -2,7 +2,7 @@ use std::str::FromStr;
 use std::{fmt, str};
 
 #[derive(Debug)]
-struct ChunkType {
+pub struct ChunkType {
     bytes: [u8; 4]
 }
 
