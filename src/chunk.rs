@@ -8,14 +8,13 @@ use crate::{Error, Result};
 
 pub struct Chunk {
     data: Vec<u8>,
-    crc: u32,
     chunk_type: ChunkType,
-    length: u32
 }
 
 impl Chunk {
-    pub fn length(&self) -> i32 {
-        self.length.try_into().unwrap()
+    pub fn length(&self) -> usize {
+        self.data.len()
+        // self.length.try_into().unwrap()
     }
 
     pub fn chunk_type(&self) -> &ChunkType {
@@ -44,14 +43,19 @@ impl Chunk {
     }
 
     pub fn as_bytes(&self) -> Vec<u8> {
-        let len_bytes: [u8; 4] = self.length().to_be_bytes();
+        let len_bytes = (self.length() as u32).to_be_bytes();
         let bytes: Vec<u8> = len_bytes
             .iter()
             .chain(self.chunk_type.bytes().iter())
             .chain(self.data.iter())
+            .chain(self.crc().to_be_bytes().iter())
             .copied()
             .collect();
         bytes
+    }
+
+    pub fn new(chunk_type: ChunkType, data: Vec<u8>) -> Chunk {
+        Chunk{chunk_type: chunk_type, data: data}
     }
 
 }
@@ -87,16 +91,18 @@ impl TryFrom<&[u8]> for Chunk {
         let mut mut_value = value.clone();
         let split_1 = mut_value.split_at(4);
         let rem: [u8; 4] = (split_1.0).try_into().expect("Could not read size!");
-        let length: u32 = u32::from_be_bytes(rem);
+        let length: usize = u32::from_be_bytes(rem) as usize;
+        println!("Length: {}", length);
         let split_2 = split_1.1.split_at(4);
         let chunk_rem: [u8; 4] = (split_2.0).try_into().expect("Could not read out chunk type!");
         let chunk_type = ChunkType::try_from(chunk_rem).unwrap();
         let split_3 = split_2.1.split_at(split_2.1.len() - 4);
         let data: Vec<u8> = split_3.0.to_vec();
         let crc: u32 = u32::from_be_bytes(split_3.1.try_into().expect("Could not read out crc!"));
-        let res = Chunk{length: length, chunk_type: chunk_type, crc: crc, data: data};
+        let res = Chunk{ chunk_type: chunk_type,  data: data};
         let expected_crc = res.crc();
         if crc != expected_crc {
+            println!("Wrong calculated CRC: {}, {}", crc, expected_crc);
             return Err(Box::from(CreateChunkError::MismatchedCrc));
         }
         Ok(res)
