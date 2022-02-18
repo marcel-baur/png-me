@@ -7,3 +7,6 @@ edition = "2021"
 
 [dependencies]
 crc = "1.6.0"
+clap = { version = "3.0.14", features = ["derive"] }
+anyhow = "1.0.53"
+magic-crypt = "3.1.9"
