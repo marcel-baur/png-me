@@ -1,6 +1,5 @@
 use crate::{Error, Result};
 use crate::chunk::Chunk;
-use crate::chunk_type::ChunkType;
 use std::fmt::Display;
 
 pub struct Png {
@@ -11,7 +10,7 @@ impl Png {
 	pub const STANDARD_HEADER: [u8; 8] = [137, 80, 78, 71, 13, 10, 26, 10];
 
     pub fn from_chunks(chunks: Vec<Chunk>) -> Self {
-        Png{chunks:chunks}
+        Png{chunks}
     }
 
     pub fn chunks(&self) -> &Vec<Chunk> {
@@ -97,7 +96,7 @@ impl TryFrom<&[u8]> for Png {
         let mut pointer: usize = header.len();
 
         while pointer < value.len() {
-            let lenbytes: [u8;4] =(*(&value[pointer..pointer+4])).try_into().expect("ERR");
+            let lenbytes: [u8;4] =(value[pointer..pointer+4]).try_into().expect("ERR");
             let len = u32::from_be_bytes( lenbytes) as usize;
             let bytes = &value[pointer..len+pointer+12];
             let chunk = Chunk::try_from(bytes);
@@ -112,7 +111,7 @@ impl TryFrom<&[u8]> for Png {
             }
 
         }
-        Ok(Png{chunks:chunks})
+        Ok(Png{chunks})
         
     }
 }
@@ -125,8 +124,6 @@ mod tests {
     use super::*;
     use crate::chunk_type::ChunkType;
     use crate::chunk::Chunk;
-    use std::str::FromStr;
-    use std::convert::TryFrom;
 
     fn testing_chunks() -> Vec<Chunk> {
         let mut chunks = Vec::with_capacity(3);

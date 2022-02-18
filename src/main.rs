@@ -4,7 +4,7 @@ mod chunk_type;
 mod commands;
 mod png;
 
-use clap::{Parser, Subcommand, AppSettings};
+use clap::{Parser, AppSettings};
 use args::MainArgs;
 
 /// Program to encode messages in png files

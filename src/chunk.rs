@@ -2,7 +2,6 @@
 use crate::chunk_type::ChunkType;
 use std::convert::TryFrom;
 use std::fmt;
-use crc;
 
 use crate::{Error, Result};
 
@@ -35,7 +34,6 @@ impl Chunk {
             .copied()
             .collect();
         crc::crc32::checksum_ieee(&bytes)
-        // self.crc
     }
     
     pub fn data_as_string(&self) -> Result<String> {
@@ -56,14 +54,13 @@ impl Chunk {
     }
 
     pub fn new(chunk_type: ChunkType, data: Vec<u8>) -> Chunk {
-        Chunk{chunk_type: chunk_type, data: data}
+        Chunk{chunk_type, data}
     }
 
 }
 
 #[derive(Debug)]
 pub enum CreateChunkError {
-    ParseError,
     MismatchedCrc
 }
 
@@ -74,9 +71,6 @@ impl std::error::Error for CreateChunkError {
 impl fmt::Display for CreateChunkError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match *self {
-            CreateChunkError::ParseError => {
-                write!(f, "Failed to parse chunk!")
-            }
             CreateChunkError::MismatchedCrc => {
                 write!(f, "CRC does not match calculated value!")
             }
@@ -88,18 +82,15 @@ impl TryFrom<&[u8]> for Chunk {
     type Error = Error;
 
     fn try_from(value: &[u8]) -> Result<Self> {
-        // todo!()
-        let mut mut_value = value.clone();
+        let mut_value = value.clone();
         let split_1 = mut_value.split_at(4);
-        let rem: [u8; 4] = (split_1.0).try_into().expect("Could not read size!");
-        let length: usize = u32::from_be_bytes(rem) as usize;
         let split_2 = split_1.1.split_at(4);
         let chunk_rem: [u8; 4] = (split_2.0).try_into().expect("Could not read out chunk type!");
         let chunk_type = ChunkType::try_from(chunk_rem).unwrap();
         let split_3 = split_2.1.split_at(split_2.1.len() - 4);
         let data: Vec<u8> = split_3.0.to_vec();
         let crc: u32 = u32::from_be_bytes(split_3.1.try_into().expect("Could not read out crc!"));
-        let res = Chunk{ chunk_type: chunk_type,  data: data};
+        let res = Chunk{ chunk_type, data};
         let expected_crc = res.crc();
         if crc != expected_crc {
             return Err(Box::from(CreateChunkError::MismatchedCrc));
