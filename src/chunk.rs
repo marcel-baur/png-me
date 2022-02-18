@@ -6,6 +6,7 @@ use crc;
 
 use crate::{Error, Result};
 
+#[derive(Debug)]
 pub struct Chunk {
     data: Vec<u8>,
     chunk_type: ChunkType,

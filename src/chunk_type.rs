@@ -11,7 +11,7 @@ impl ChunkType {
         self.bytes
     }
 
-    fn is_valid(&self) -> bool {
+    pub fn is_valid(&self) -> bool {
         for byte in self.bytes {
             if !ChunkType::is_valid_byte(byte) {
                 return false;

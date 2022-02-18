@@ -57,6 +57,12 @@ impl Png {
     }
 }
 
+impl Display for Png {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self.chunks())
+    }
+}
+
 #[derive(Debug)]
 pub enum PNGError {
     CreateError,
