@@ -4,7 +4,7 @@ mod chunk_type;
 mod commands;
 mod png;
 
-use clap::{Parser, Subcommand, AppSettings};
+use clap::{Parser, AppSettings};
 use args::MainArgs;
 
 /// Program to encode messages in png files
@@ -27,10 +27,11 @@ fn main() {
     match &args.command {
         MainArgs::Encode(args) => {
             commands::encode(&args);
-            
+
         }
         MainArgs::Decode(args) => {
-            todo!();
+            println!("DECODING");
+            commands::decode(&args);
         }
     }
 

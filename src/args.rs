@@ -24,7 +24,7 @@ pub struct EncodingArgs {
     pub output: Option<PathBuf>,
 }
 
-#[derive(Args)]
+#[derive(Args, Debug)]
 pub struct DecodingArgs {
     #[clap(parse(from_os_str), short='i', long)]
     pub path: PathBuf,
