@@ -31,9 +31,6 @@ impl Png {
                 return Err(Box::from("Not found!"));
             }
         }
-        // let index = self.chunks.iter().position(|chunk| (*chunk).chunk_type().to_string() == chunk_type).ok_or("Not found!").unwrap();
-        // let removed = self.chunks.remove(index);
-        // Ok(removed)
     }
 
     pub fn chunk_by_type(&self, chunk_type: &str) -> Option<&Chunk> {
@@ -78,7 +75,7 @@ impl Display for PNGError {
 }
 
 impl TryFrom<&[u8]> for Png {
-    // [--------]{[----][----][--DATA--][----]}* 
+    // [--------]{[----][----][--DATA--][----]}*
     type Error = Error;
 
     fn try_from(value: &[u8]) -> Result<Self> {
@@ -112,7 +109,7 @@ impl TryFrom<&[u8]> for Png {
 
         }
         Ok(Png{chunks})
-        
+
     }
 }
 

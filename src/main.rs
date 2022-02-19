@@ -27,10 +27,11 @@ fn main() {
     match &args.command {
         MainArgs::Encode(args) => {
             commands::encode(&args);
-            
+
         }
         MainArgs::Decode(args) => {
-            todo!();
+            println!("DECODING");
+            commands::decode(&args);
         }
     }
 
