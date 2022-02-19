@@ -26,12 +26,19 @@ fn main() {
 
     match &args.command {
         MainArgs::Encode(args) => {
-            commands::encode(&args);
+            match commands::encode(&args) {
+                Ok(_) => {
+                }
+                Err(_e) => {}
+            };
 
         }
         MainArgs::Decode(args) => {
-            println!("DECODING");
-            commands::decode(&args);
+            match commands::decode(&args) {
+                Ok(_) => {
+                }
+                Err(_e) => {}
+            };
         }
     }
 
