@@ -21,7 +21,7 @@ impl Png {
         self.chunks.push(chunk);
     }
 
-    fn remove_chunk(&mut self, chunk_type: &str) -> Result<Chunk> {
+    pub fn remove_chunk(&mut self, chunk_type: &str) -> Result<Chunk> {
         let index_option = self.chunks.iter().position(|chunk| (*chunk).chunk_type().to_string() == chunk_type);
         match index_option {
             Some(index) => {

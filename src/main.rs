@@ -40,6 +40,12 @@ fn main() {
                 Err(_e) => {}
             };
         }
+        MainArgs::Remove(args) => {
+            match commands::remove(&args) {
+                Ok(_) => {},
+                Err(_e) => {}
+            };
+        }
     }
 
 

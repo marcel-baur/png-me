@@ -7,12 +7,15 @@ pub enum MainArgs {
     Encode(EncodingArgs),
 
     #[clap(setting(AppSettings::ArgRequiredElseHelp))]
-    Decode(DecodingArgs)
+    Decode(DecodingArgs),
+
+    #[clap(setting(AppSettings::ArgRequiredElseHelp))]
+    Remove(RemovingArgs)
+
 }
 
 #[derive(Args, Debug)]
 pub struct EncodingArgs {
-    #[clap(parse(from_os_str), short, long)]
     pub path: PathBuf,
 
     pub chunk_type: String,
@@ -26,11 +29,20 @@ pub struct EncodingArgs {
 
 #[derive(Args, Debug)]
 pub struct DecodingArgs {
-    #[clap(parse(from_os_str), short='i', long)]
     pub path: PathBuf,
 
     pub chunk_type: String,
 
-    #[clap(short, long)]
     pub key: Option<String>,
+}
+
+#[derive(Args,Debug)]
+pub struct RemovingArgs {
+    pub path: PathBuf,
+
+    pub chunk_type: String,
+
+    pub key: Option<String>,
+
+    pub output: Option<PathBuf>,
 }

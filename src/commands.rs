@@ -1,7 +1,8 @@
-use crate::args::{DecodingArgs, EncodingArgs};
+use crate::args::{DecodingArgs, EncodingArgs, RemovingArgs};
 use crate::chunk::Chunk;
 use crate::chunk_type::ChunkType;
 use crate::png::Png;
+use std::path::PathBuf;
 use anyhow::{bail, Result};
 use magic_crypt::{new_magic_crypt, MagicCryptTrait};
 use std::fs;
@@ -17,7 +18,6 @@ pub fn encode(args: &EncodingArgs) -> Result<()> {
                 Some(key) => encrypt(&key, &args.message).as_bytes().to_vec(),
                 None => args.message.clone().as_bytes().to_vec(),
             };
-
             if !chunk_type.is_valid() {
                 bail!("Invalid chunk type!");
             }
@@ -37,10 +37,8 @@ pub fn encode(args: &EncodingArgs) -> Result<()> {
 
 pub fn decode(args: &DecodingArgs) -> Result<()> {
     println!("{:?}", args);
-
     let file = fs::read(args.path.clone())?;
     let png = Png::try_from(&file[..]).expect("Failed to read PNG file");
-
     match png.chunk_by_type(&args.chunk_type) {
         Some(chunk) => {
             let data = chunk.data_as_string().expect("Failed to convert chunk data to string.");
@@ -49,13 +47,36 @@ pub fn decode(args: &DecodingArgs) -> Result<()> {
                 Some(key) => decrypt(key, &data)?,
                 None => data,
             };
-
             println!("The message is: {}", msg)
         },
         None => bail!("Chunk type not found!"),
     };
-
     Ok(())
+}
+
+pub fn remove(args: &RemovingArgs) -> Result<()> {
+    let mut png = load_png(&args.path.clone())?;
+    match png.remove_chunk(&args.chunk_type) {
+        Ok(_) => {
+            match &args.output {
+                Some(path) => fs::write(path.clone(), png.as_bytes())?,
+                None => {
+                    bail!("No path to write supplied!");
+                }
+            };
+            return Ok(())
+        }
+        Err(_) => bail!("Could not remove chunk!")
+    }
+}
+
+fn load_png(path: &PathBuf) -> Result<Png> {
+    let file = fs::read(path)?;
+    let png = Png::try_from(&file[..]);
+    match png {
+        Ok(png) => Ok(png),
+        Err(_) => bail!("Could not read png from file")
+    }
 }
 
 fn encrypt(key: &str, message: &str) -> String {
