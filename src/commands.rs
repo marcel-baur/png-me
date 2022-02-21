@@ -35,11 +35,11 @@ pub fn encode(args: &EncodingArgs) -> Result<()> {
     }
 }
 
-pub fn decode(args: &DecodingArgs) -> Result<()> {
+pub fn decode(args: &DecodingArgs) -> Result<String> {
     println!("{:?}", args);
     let file = fs::read(args.path.clone())?;
     let png = Png::try_from(&file[..]).expect("Failed to read PNG file");
-    match png.chunk_by_type(&args.chunk_type) {
+    let mess = match png.chunk_by_type(&args.chunk_type) {
         Some(chunk) => {
             let data = chunk.data_as_string().expect("Failed to convert chunk data to string.");
             println!("Data: {}", data);
@@ -47,11 +47,14 @@ pub fn decode(args: &DecodingArgs) -> Result<()> {
                 Some(key) => decrypt(key, &data)?,
                 None => data,
             };
-            println!("The message is: {}", msg)
+            println!("The message is: {}", msg);
+            msg
         },
-        None => bail!("Chunk type not found!"),
+        None => {
+            bail!("Decoding failed!");
+         }
     };
-    Ok(())
+    Ok(mess)
 }
 
 pub fn remove(args: &RemovingArgs) -> Result<()> {

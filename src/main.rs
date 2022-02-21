@@ -28,6 +28,7 @@ fn main() {
         MainArgs::Encode(args) => {
             match commands::encode(&args) {
                 Ok(_) => {
+                    println!("Successfully encoded your secret message!");
                 }
                 Err(_e) => {}
             };
@@ -35,7 +36,9 @@ fn main() {
         }
         MainArgs::Decode(args) => {
             match commands::decode(&args) {
-                Ok(_) => {
+                Ok(message) => {
+                   println!("Your decoded message is: {}", message);
+
                 }
                 Err(_e) => {}
             };
